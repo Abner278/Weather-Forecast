@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            overflow: hidden; /* Stop scrolling */
+        }
+
+        .weather-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            max-width: 900px;
+            padding: 2rem;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .umbrella-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .umbrella-image {
+            max-width: 100%;
+            width: 150px;
+            height: auto;
+        }
+
+        .right-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding-left: 1.5rem;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: left;
+            color: #ffffff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+            letter-spacing: 2px;
+        }
+
+        button {
+            padding: clamp(0.8rem, 2vw, 1.2rem) clamp(1.5rem, 3vw, 2.2rem);
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #ff6f61, #ffcc33);
+            color: white;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #ffcc33, #ff6f61);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Desktop-size adjustments for phone "Desktop Site" mode */
+        @media (min-width: 769px) {
+            .weather-container {
+                max-width: 1200px; /* Larger container */
+                padding: 3rem; /* Increased padding */
+            }
+
+            .umbrella-image {
+                width: 200px; /* Larger image */
+            }
+
+            .right-side {
+                padding-left: 2rem; /* More space */
+            }
+
+            h1 {
+                font-size: 4rem; /* Larger heading */
+                margin-bottom: 2rem; /* More spacing */
+            }
+
+            button {
+                padding: 1rem 2.5rem; /* Larger button */
+                font-size: 1.5rem; /* Larger text */
+            }
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            .weather-container {
+                flex-direction: column;
+                width: 95%;
+                padding: 1.5rem;
+            }
+
+            .umbrella-container {
+                justify-content: center;
+                margin-bottom: 1.5rem;
+            }
+
+            .right-side {
+                align-items: center;
+                padding-left: 0;
+                text-align: center;
+            }
+
+            h1 {
+                text-align: center;
+            }
+        }
+
+        /* Extra small screens (e.g., very narrow phones) */
+        @media (max-width: 480px) {
+            .weather-container {
+                padding: 1rem;
+            }
+
+            .umbrella-image {
+                width: 100px; /* Smaller default size */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="weather-container">
+        <div class="umbrella-container">
+            <img src="1st img.png" alt="Umbrella" class="umbrella-image">
+        </div>
+        <div class="right-side">
+            <h1>Weather Forecast</h1>
+            <button onclick="window.location.href = 'index 2.html';">Get Started</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Dashboard Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      line-height: 1.5;
+      font-size: 16px; /* Base font size for better readability */
+    }
+
+    .animate-bounce {
+      animation: bounce 3s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .arrow-button {
+      background: rgba(59, 130, 246, 0.1);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .arrow-button:hover {
+      background: rgba(59, 130, 246, 0.2);
+      transform: scale(1.1);
+    }
+
+    canvas {
+      max-width: 100%;
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 640px) {
+      .min-h-screen {
+        padding: 8px; /* Slightly larger padding */
+      }
+      .max-w-7xl {
+        gap: 8px; /* Larger gap for better spacing */
+      }
+      .bg-[#1e293b] {
+        padding: 8px; /* Larger padding inside sections */
+      }
+
+      /* Sidebar adjustments */
+      nav {
+        padding: 8px;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-around;
+      }
+      nav .flex {
+        gap: 8px;
+      }
+      .w-12 {
+        width: 48px; /* Slightly larger logo */
+        height: 48px;
+      }
+      .text-2xl {
+        font-size: 1.5rem; /* Larger icons */
+      }
+
+      /* Main content adjustments */
+      main {
+        gap: 8px;
+      }
+      .search-input {
+        padding: 10px;
+        font-size: 1rem; /* Larger text for input */
+      }
+      .city-name {
+        font-size: 2rem; /* Larger city name */
+      }
+      .rain-chance {
+        font-size: 1rem; /* Larger rain chance text */
+      }
+      .temperature {
+        font-size: 3rem; /* Larger temperature */
+      }
+      .weather-icon {
+        font-size: 4rem; /* Larger weather icon */
+      }
+      .flex.justify-between {
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .hourly-forecast {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        overflow-x: auto;
+      }
+      .hourly-forecast > div {
+        padding: 10px;
+      }
+      .hourly-forecast .text-sm {
+        font-size: 0.9rem; /* Larger hourly time text */
+      }
+      .hourly-forecast .text-xl {
+        font-size: 1.25rem; /* Larger hourly temp */
+      }
+      .hourly-forecast .text-2xl {
+        font-size: 1.5rem; /* Larger hourly icon */
+      }
+      .arrow-button {
+        width: 36px;
+        height: 36px;
+      }
+
+      /* Air conditions adjustments */
+      .grid.md\:grid-cols-3 {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .grid.md\:grid-cols-3 > div {
+        padding: 10px;
+      }
+      .condition-info p {
+        font-size: 0.9rem; /* Larger label text */
+      }
+      .condition-info .text-2xl {
+        font-size: 1.5rem; /* Larger value text */
+      }
+      .text-4xl {
+        font-size: 2.5rem; /* Larger icons */
+      }
+
+      /* Aside (7-day forecast) adjustments */
+      aside {
+        padding: 8px;
+      }
+      .weekly-list {
+        gap: 8px;
+      }
+      .weekly-list > div {
+        padding: 10px;
+      }
+      .text-xl {
+        font-size: 1.25rem; /* Larger day labels */
+      }
+      canvas#weatherChart {
+        height: 180px !important; /* Slightly larger chart */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen bg-[#0f172a] text-[#f8fafc] p-6" id="themeContainer">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
+      <!-- Sidebar -->
+      <nav class="bg-[#1e293b] p-6 rounded-2xl shadow-lg lg:w-20">
+        <div class="flex lg:flex-col items-center justify-between gap-10">
+          <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-2xl shadow-lg cursor-pointer hover:shadow-blue-500/50 transition-all">
+            🌤️
+          </div>
+          
+          <button id="mapButton" class="text-2xl text-gray-400 p-2 rounded-lg hover:-translate-y-1 transition-all">
+            🗺️
+          </button>
+
+          <button id="themeToggle" class="text-2xl text-gray-400 p-2 rounded-lg hover:-translate-y-1 transition-all">
+            🌙
+          </button>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="flex-1 flex flex-col gap-6">
+        <input
+          type="text"
+          placeholder="Search for cities..."
+          class="search-input w-full p-4 bg-[#1e293b] border-2 border-transparent rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:shadow-blue-500/50 transition-all"
+        />
+
+        <div class="bg-[#1e293b] p-8 rounded-2xl shadow-lg">
+          <div class="flex justify-between items-start mb-10">
+            <div>
+              <h1 class="city-name text-4xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent mb-2">
+                Default
+              </h1>
+              <p class="rain-chance text-gray-400">
+                Chance of rain: 0%
+              </p>
+              <div class="temperature text-6xl font-bold mt-4"></div>
+            </div>
+            <div class="weather-icon text-7xl animate-bounce">
+              ☀️
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <button class="arrow-button" id="prevHours">⬅️</button>
+            <div class="hourly-forecast grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 flex-1"></div>
+            <button class="arrow-button" id="nextHours">➡️</button>
+          </div>
+        </div>
+
+        <div class="bg-[#1e293b] p-8 rounded-2xl shadow-lg">
+          <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-semibold">Air Conditions</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div class="bg-[#1e293b]/50 p-6 rounded-xl flex items-center gap-6 hover:-translate-y-1 hover:bg-blue-500/10 transition-all">
+              <div class="text-4xl text-blue-500">💨</div>
+              <div class="condition-info">
+                <p class="text-gray-400 text-sm mb-1">Wind</p>
+                <p class="text-2xl font-bold wind-speed">0 km/h</p>
+              </div>
+            </div>
+            <div class="bg-[#1e293b]/50 p-6 rounded-xl flex items-center gap-6 hover:-translate-y-1 hover:bg-blue-500/10 transition-all">
+              <div class="text-4xl text-blue-500">🌧️</div>
+              <div class="condition-info">
+                <p class="text-gray-400 text-sm mb-1">Chance of Rain</p>
+                <p class="text-2xl font-bold rain-probability">0%</p>
+              </div>
+            </div>
+            <div class="bg-[#1e293b]/50 p-6 rounded-xl flex items-center gap-6 hover:-translate-y-1 hover:bg-blue-500/10 transition-all">
+              <div class="text-4xl text-blue-500">❄️</div>
+              <div class="condition-info">
+                <p class="text-gray-400 text-sm mb-1">Chance of Snow</p>
+                <p class="text-2xl font-bold snow-probability">0%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <aside class="lg:w-96 bg-[#1e293b] p-8 rounded-2xl shadow-lg">
+        <h2 class="text-gray-400 font-semibold mb-6">7-DAY FORECAST</h2>
+        <div class="weekly-list flex flex-col gap-4 mb-6"></div>
+        <canvas id="weatherChart" height="200"></canvas>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const apiKey = '0a60a9818c54b97045e09a2acc933a2f';
+    const apiUrl = 'https://api.openweathermap.org/data/2.5/weather?units=metric&appid=' + apiKey;
+    const forecastUrl = 'https://api.openweathermap.org/data/2.5/forecast?units=metric&appid=' + apiKey;
+    let currentTimeSlot = 0;
+    const hoursToShow = 6;
+    let weatherChart;
+
+    const searchInput = document.querySelector('.search-input');
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const city = searchInput.value.trim();
+        if (city) {
+          getWeatherData(city);
+          getForecastData(city);
+        }
+      }
+    });
+
+    const themeToggle = document.getElementById('themeToggle');
+    const themeContainer = document.getElementById('themeContainer');
+    let isDark = true;
+
+    themeToggle.addEventListener('click', () => {
+      if (isDark) {
+        themeContainer.classList.remove('bg-[#0f172a]');
+        themeContainer.classList.add('bg-[#f8fafc]');
+        themeToggle.textContent = '🌞';
+      } else {
+        themeContainer.classList.remove('bg-[#f8fafc]', 'text-[#0f172a]');
+        themeContainer.classList.add('bg-[#0f172a]', 'text-[#f8fafc]');
+        themeToggle.textContent = '🌙';
+      }
+      isDark = !isDark;
+    });
+
+    const mapButton = document.getElementById('mapButton');
+    mapButton.addEventListener('click', () => {
+      window.location.href = 'https://zoom.earth/';
+    });
+
+    function getWeatherData(city) {
+      const url = `${apiUrl}&q=${encodeURIComponent(city)}`;
+      fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          if (data.cod === '404') throw new Error('City not found');
+          if (data.cod !== 200) throw new Error(`API Error: ${data.message}`);
+          updateWeatherUI(data);
+        })
+        .catch(error => {
+          console.error('Error fetching current weather:', error);
+          alert('Could not find the city. Please check the spelling and try again.');
+          searchInput.value = '';
+        });
+    }
+
+    function getForecastData(city) {
+      const url = `${forecastUrl}&q=${encodeURIComponent(city)}`;
+      fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          if (data.cod === '404') throw new Error('City not found');
+          if (data.cod !== '200') throw new Error(`API Error: ${data.message}`);
+          console.log('Forecast Data:', data);
+          updateWeeklyForecast(data);
+          updateWeatherChart(data);
+          updateAirConditions(data);
+          updateWeatherUIWithForecast(data);
+        })
+        .catch(error => {
+          console.error('Error fetching forecast data:', error);
+          alert('Failed to load forecast data. Please try again.');
+        });
+    }
+
+    function getWeatherEmoji(iconCode, temperature = null) {
+      try {
+        if (temperature !== null && temperature <= 0) return '❄️';
+        if (iconCode && iconCode.startsWith('50')) return '🌫️';
+        const weatherIcons = {
+          '01d': '☀️', '01n': '🌙', '02d': '⛅', '02n': '☁️',
+          '03d': '☁️', '03n': '☁️', '04d': '☁️', '04n': '☁️',
+          '09d': '🌧️', '09n': '🌧️', '10d': '🌦️', '10n': '🌧️',
+          '11d': '⛈️', '11n': '⛈️', '13d': '❄️', '13n': '❄️',
+          '50d': '🌫️', '50n': '🌫️'
+        };
+        return weatherIcons[iconCode] || '☀️';
+      } catch (error) {
+        console.error('Error in getWeatherEmoji:', error);
+        return '☀️';
+      }
+    }
+
+    function getDayName(timestamp) {
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      return days[new Date(timestamp * 1000).getDay()];
+    }
+
+    function isToday(timestamp) {
+      const today = new Date();
+      const forecastDate = new Date(timestamp * 1000);
+      return today.getDate() === forecastDate.getDate() &&
+             today.getMonth() === forecastDate.getMonth() &&
+             today.getFullYear() === forecastDate.getFullYear();
+    }
+
+    function getCityLocalTime(timezoneOffset) {
+      const nowUTC = new Date().getTime() + (new Date().getTimezoneOffset() * 60000);
+      const cityTime = new Date(nowUTC + (timezoneOffset * 1000));
+      return cityTime;
+    }
+
+    function calculatePrecipitationChances(forecastList) {
+      if (!forecastList || forecastList.length === 0) {
+        console.warn('No forecast data available');
+        return { rainChance: 0, snowChance: 0 };
+      }
+
+      let rainChance = 0;
+      let snowChance = 0;
+
+      forecastList.forEach(forecast => {
+        const weatherCode = forecast.weather[0]?.id || 0;
+        const cloudCover = forecast.clouds?.all || 0;
+        const rainVolume = forecast.rain ? (forecast.rain['3h'] || 0) : 0;
+        const snowVolume = forecast.snow ? (forecast.snow['3h'] || 0) : 0;
+
+        if (rainVolume > 0) {
+          rainChance = Math.max(rainChance, Math.min(100, Math.round(rainVolume * 20 + cloudCover / 2)));
+        } else if (weatherCode >= 500 && weatherCode < 600) {
+          rainChance = Math.max(rainChance, Math.min(100, cloudCover * 0.8));
+        } else if (weatherCode >= 300 && weatherCode < 400) {
+          rainChance = Math.max(rainChance, Math.min(50, cloudCover * 0.5));
+        }
+
+        if (snowVolume > 0) {
+          snowChance = Math.max(snowChance, Math.min(100, Math.round(snowVolume * 20 + cloudCover / 2)));
+        } else if (weatherCode >= 600 && weatherCode <= 622) {
+          snowChance = Math.max(snowChance, Math.min(100, cloudCover * 0.8));
+        }
+      });
+
+      console.log('Calculated Chances:', { rainChance, snowChance });
+      return { rainChance, snowChance };
+    }
+
+    function updateWeatherUI(data) {
+      try {
+        const cityName = document.querySelector('.city-name');
+        const temperature = document.querySelector('.temperature');
+        const rainChance = document.querySelector('.rain-chance');
+        const weatherIcon = document.querySelector('.weather-icon');
+        const hourlyForecast = document.querySelector('.hourly-forecast');
+        const timezoneOffset = data.timezone;
+
+        cityName.textContent = data.name || 'Unknown City';
+        temperature.textContent = `${Math.round(data.main.temp)}°`;
+        weatherIcon.textContent = getWeatherEmoji(data.weather[0]?.icon, data.main.temp);
+        rainChance.textContent = `Chance of rain: ${data.clouds?.all || 0}%`;
+
+        console.log(`Current Temperature: ${Math.round(data.main.temp)}° at ${new Date((data.dt + timezoneOffset) * 1000).toLocaleString()} (city local time)`);
+        console.log(`Your Device Time: ${new Date().toLocaleString()}`);
+
+        function getTemperatureForHour(hour, baseTemp) {
+          const tempPatterns = {
+            0: -2, 1: -2.5, 2: -3, 3: -3.5, 4: -3.5,
+            5: -3, 6: -2, 7: -1, 8: 0, 9: 1,
+            10: 2, 11: 3, 12: 3.5, 13: 4, 14: 4,
+            15: 3.5, 16: 3, 17: 2, 18: 1, 19: 0,
+            20: -0.5, 21: -1, 22: -1.5, 23: -2
+          };
+          return baseTemp + (tempPatterns[hour] || 0);
+        }
+
+        function updateHourlyForecast() {
+          if (!hourlyForecast) return;
+          hourlyForecast.innerHTML = '';
+          const cityTime = getCityLocalTime(timezoneOffset);
+          const currentHour = cityTime.getHours();
+          const baseTemp = data.main.temp;
+
+          for (let i = 0; i < hoursToShow; i++) {
+            let nextHour = (currentHour + currentTimeSlot + i) % 24;
+            let period = nextHour >= 12 ? 'PM' : 'AM';
+            let displayHour = nextHour % 12 || 12;
+
+            let timeBasedIcon = data.weather[0]?.icon || '01d';
+            if (nextHour >= 6 && nextHour < 18) {
+              timeBasedIcon = timeBasedIcon.replace('n', 'd');
+            } else {
+              timeBasedIcon = timeBasedIcon.replace('d', 'n');
+            }
+
+            const temp = getTemperatureForHour(nextHour, baseTemp);
+            const hourItem = document.createElement('div');
+            hourItem.className = 'bg-[#1e293b]/50 p-4 rounded-xl flex flex-col items-center hover:-translate-y-1 hover:bg-blue-500/10 transition-all';
+            hourItem.innerHTML = `
+              <span class="text-gray-400 text-sm mb-3">${displayHour}:00 ${period}</span>
+              <span class="text-2xl">${getWeatherEmoji(timeBasedIcon, temp)}</span>
+              <span class="text-xl font-bold mt-3">${Math.round(temp)}°</span>
+            `;
+            hourlyForecast.appendChild(hourItem);
+          }
+        }
+
+        updateHourlyForecast();
+
+        const prevHours = document.getElementById('prevHours');
+        const nextHours = document.getElementById('nextHours');
+        const newPrev = prevHours.cloneNode(true);
+        const newNext = nextHours.cloneNode(true);
+        prevHours.replaceWith(newPrev);
+        nextHours.replaceWith(newNext);
+
+        newPrev.addEventListener('click', () => {
+          currentTimeSlot = (currentTimeSlot - hoursToShow + 24) % 24;
+          updateHourlyForecast();
+        });
+
+        newNext.addEventListener('click', () => {
+          currentTimeSlot = (currentTimeSlot + hoursToShow) % 24;
+          updateHourlyForecast();
+        });
+      } catch (error) {
+        console.error('Error in updateWeatherUI:', error);
+      }
+    }
+
+    function updateWeatherUIWithForecast(forecastData) {
+      const rainChance = document.querySelector('.rain-chance');
+      const temperature = document.querySelector('.temperature');
+      const { rainChance: calculatedRainChance } = calculatePrecipitationChances(forecastData.list);
+
+      const cityTime = getCityLocalTime(forecastData.city.timezone);
+      const currentHour = cityTime.getHours();
+      const closestForecast = forecastData.list.find(forecast => {
+        const forecastTime = new Date((forecast.dt + forecastData.city.timezone) * 1000);
+        return forecastTime.getHours() === currentHour;
+      }) || forecastData.list[0];
+
+      rainChance.textContent = `Chance of rain: ${calculatedRainChance}%`;
+      temperature.textContent = `${Math.round(closestForecast.main.temp)}°`;
+      console.log(`Forecast Temp for ${currentHour}:00: ${Math.round(closestForecast.main.temp)}°`);
+    }
+
+    function updateAirConditions(data) {
+      try {
+        const windSpeed = document.querySelector('.wind-speed');
+        const rainProbability = document.querySelector('.rain-probability');
+        const snowProbability = document.querySelector('.snow-probability');
+
+        const forecastData = data.list && data.list.length > 0 ? data.list[0] : null;
+        const { rainChance, snowChance } = calculatePrecipitationChances(data.list || []);
+
+        if (windSpeed && forecastData) windSpeed.textContent = `${Math.round(forecastData.wind?.speed || 0)} km/h`;
+        if (rainProbability) rainProbability.textContent = `${rainChance}%`;
+        if (snowProbability) snowProbability.textContent = `${snowChance}%`;
+      } catch (error) {
+        console.error('Error in updateAirConditions:', error);
+      }
+    }
+
+    function updateWeeklyForecast(data) {
+      try {
+        const weeklyList = document.querySelector('.weekly-list');
+        if (!weeklyList || !data.list || data.list.length === 0) {
+          console.warn('No forecast data for weekly list');
+          weeklyList.innerHTML = '<p class="text-gray-400">No forecast available</p>';
+          return;
+        }
+
+        weeklyList.innerHTML = '';
+        const dailyData = {};
+        
+        data.list.forEach(forecast => {
+          const date = new Date(forecast.dt * 1000);
+          const dayKey = date.toDateString();
+          if (!dailyData[dayKey]) {
+            dailyData[dayKey] = {
+              temps: [],
+              icons: [],
+              dt: forecast.dt
+            };
+          }
+          dailyData[dayKey].temps.push(forecast.main.temp);
+          dailyData[dayKey].icons.push(forecast.weather[0]?.icon);
+        });
+
+        let dayCount = 0;
+        for (const [dayKey, info] of Object.entries(dailyData)) {
+          if (dayCount >= 7) break;
+          const avgTemp = info.temps.reduce((a, b) => a + b, 0) / info.temps.length;
+          const mostFrequentIcon = info.icons.sort((a, b) => 
+            info.icons.filter(v => v === a).length - info.icons.filter(v => v === b).length
+          ).pop();
+          const dayLabel = isToday(info.dt) ? 'Today' : getDayName(info.dt);
+
+          const dayItem = document.createElement('div');
+          dayItem.className = 'bg-[#1e293b] p-6 rounded-xl flex justify-between items-center gap-4 hover:-translate-y-1 hover:bg-blue-500/10 transition-all';
+          dayItem.innerHTML = `
+            <div class="text-xl font-bold">${dayLabel}</div>
+            <div class="flex flex-col items-center">
+              <span class="text-gray-400">${Math.round(avgTemp)}°</span>
+              <span class="text-gray-400">${getWeatherEmoji(mostFrequentIcon, avgTemp)}</span>
+            </div>
+          `;
+          weeklyList.appendChild(dayItem);
+          dayCount++;
+        }
+      } catch (error) {
+        console.error('Error in updateWeeklyForecast:', error);
+        weeklyList.innerHTML = '<p class="text-gray-400">Error loading forecast</p>';
+      }
+    }
+
+    function updateWeatherChart(data) {
+      try {
+        const ctx = document.getElementById('weatherChart').getContext('2d');
+        if (!data.list || data.list.length === 0) {
+          console.warn('No forecast data for chart');
+          return;
+        }
+
+        const labels = [];
+        const temperatures = [];
+        const dailyData = {};
+
+        data.list.forEach(forecast => {
+          const date = new Date(forecast.dt * 1000);
+          const dayKey = date.toDateString();
+          if (!dailyData[dayKey]) dailyData[dayKey] = [];
+          dailyData[dayKey].push(forecast.main.temp);
+        });
+
+        let dayCount = 0;
+        for (const [dayKey, temps] of Object.entries(dailyData)) {
+          if (dayCount >= 7) break;
+          const avgTemp = temps.reduce((a, b) => a + b, 0) / temps.length;
+          const dayLabel = dayCount === 0 && isToday(data.list[0].dt) ? 'Today' : getDayName(data.list[dayCount * 8]?.dt || Date.now() / 1000);
+          labels.push(dayLabel);
+          temperatures.push(Math.round(avgTemp));
+          dayCount++;
+        }
+
+        if (weatherChart) weatherChart.destroy();
+
+        weatherChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Temperature (°C)',
+              data: temperatures,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.2)',
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: '#3b82f6',
+              pointBorderColor: '#fff',
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: '#3b82f6'
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                title: { display: true, text: 'Days', color: '#f8fafc' },
+                ticks: { color: '#f8fafc' },
+                grid: { color: 'rgba(248, 250, 252, 0.1)' }
+              },
+              y: {
+                title: { display: true, text: 'Temperature (°C)', color: '#f8fafc' },
+                ticks: { color: '#f8fafc' },
+                grid: { color: 'rgba(248, 250, 252, 0.1)' }
+              }
+            },
+            plugins: {
+              legend: { labels: { color: '#f8fafc' } }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in updateWeatherChart:', error);
+      }
+    }
+  </script>
+</body>
+</html>
