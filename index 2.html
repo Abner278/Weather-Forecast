@@ -20,7 +20,7 @@
       color: #f8fafc;
       min-height: 100vh;
       line-height: 1.5;
-      font-size: 16px; /* Base font size for better readability */
+      font-size: 16px;
     }
 
     .animate-bounce {
@@ -56,117 +56,60 @@
       padding: 10px;
     }
 
+    .suggestions {
+      position: absolute;
+      background: #1e293b;
+      border-radius: 8px;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+      margin-top: 2px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .suggestion-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      color: #f8fafc;
+    }
+
+    .suggestion-item:hover {
+      background: rgba(59, 130, 246, 0.2);
+    }
+
     /* Mobile Responsiveness */
     @media (max-width: 640px) {
-      .min-h-screen {
-        padding: 8px; /* Slightly larger padding */
-      }
-      .max-w-7xl {
-        gap: 8px; /* Larger gap for better spacing */
-      }
-      .bg-[#1e293b] {
-        padding: 8px; /* Larger padding inside sections */
-      }
-
-      /* Sidebar adjustments */
-      nav {
-        padding: 8px;
-        flex-direction: row;
-        width: 100%;
-        justify-content: space-around;
-      }
-      nav .flex {
-        gap: 8px;
-      }
-      .w-12 {
-        width: 48px; /* Slightly larger logo */
-        height: 48px;
-      }
-      .text-2xl {
-        font-size: 1.5rem; /* Larger icons */
-      }
-
-      /* Main content adjustments */
-      main {
-        gap: 8px;
-      }
-      .search-input {
-        padding: 10px;
-        font-size: 1rem; /* Larger text for input */
-      }
-      .city-name {
-        font-size: 2rem; /* Larger city name */
-      }
-      .rain-chance {
-        font-size: 1rem; /* Larger rain chance text */
-      }
-      .temperature {
-        font-size: 3rem; /* Larger temperature */
-      }
-      .weather-icon {
-        font-size: 4rem; /* Larger weather icon */
-      }
-      .flex.justify-between {
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-      .hourly-forecast {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-        overflow-x: auto;
-      }
-      .hourly-forecast > div {
-        padding: 10px;
-      }
-      .hourly-forecast .text-sm {
-        font-size: 0.9rem; /* Larger hourly time text */
-      }
-      .hourly-forecast .text-xl {
-        font-size: 1.25rem; /* Larger hourly temp */
-      }
-      .hourly-forecast .text-2xl {
-        font-size: 1.5rem; /* Larger hourly icon */
-      }
-      .arrow-button {
-        width: 36px;
-        height: 36px;
-      }
-
-      /* Air conditions adjustments */
-      .grid.md\:grid-cols-3 {
-        grid-template-columns: 1fr;
-        gap: 8px;
-      }
-      .grid.md\:grid-cols-3 > div {
-        padding: 10px;
-      }
-      .condition-info p {
-        font-size: 0.9rem; /* Larger label text */
-      }
-      .condition-info .text-2xl {
-        font-size: 1.5rem; /* Larger value text */
-      }
-      .text-4xl {
-        font-size: 2.5rem; /* Larger icons */
-      }
-
-      /* Aside (7-day forecast) adjustments */
-      aside {
-        padding: 8px;
-      }
-      .weekly-list {
-        gap: 8px;
-      }
-      .weekly-list > div {
-        padding: 10px;
-      }
-      .text-xl {
-        font-size: 1.25rem; /* Larger day labels */
-      }
-      canvas#weatherChart {
-        height: 180px !important; /* Slightly larger chart */
-      }
+      .min-h-screen { padding: 8px; }
+      .max-w-7xl { gap: 8px; }
+      .bg-[#1e293b] { padding: 8px; }
+      nav { padding: 8px; flex-direction: row; width: 100%; justify-content: space-around; }
+      nav .flex { gap: 8px; }
+      .w-12 { width: 48px; height: 48px; }
+      .text-2xl { font-size: 1.5rem; }
+      main { gap: 8px; }
+      .search-input { padding: 10px; font-size: 1rem; }
+      .city-name { font-size: 2rem; }
+      .rain-chance { font-size: 1rem; }
+      .temperature { font-size: 3rem; }
+      .weather-icon { font-size: 4rem; }
+      .flex.justify-between { flex-direction: column; align-items: center; margin-bottom: 8px; }
+      .hourly-forecast { grid-template-columns: repeat(2, 1fr); gap: 8px; overflow-x: auto; }
+      .hourly-forecast > div { padding: 10px; }
+      .hourly-forecast .text-sm { font-size: 0.9rem; }
+      .hourly-forecast .text-xl { font-size: 1.25rem; }
+      .hourly-forecast .text-2xl { font-size: 1.5rem; }
+      .arrow-button { width: 36px; height: 36px; }
+      .grid.md\:grid-cols-3 { grid-template-columns: 1fr; gap: 8px; }
+      .grid.md\:grid-cols-3 > div { padding: 10px; }
+      .condition-info p { font-size: 0.9rem; }
+      .condition-info .text-2xl { font-size: 1.5rem; }
+      .text-4xl { font-size: 2.5rem; }
+      aside { padding: 8px; }
+      .weekly-list { gap: 8px; }
+      .weekly-list > div { padding: 10px; }
+      .text-xl { font-size: 1.25rem; }
+      canvas#weatherChart { height: 180px !important; }
     }
   </style>
 </head>
@@ -192,20 +135,24 @@
 
       <!-- Main Content -->
       <main class="flex-1 flex flex-col gap-6">
-        <input
-          type="text"
-          placeholder="Search for cities..."
-          class="search-input w-full p-4 bg-[#1e293b] border-2 border-transparent rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:shadow-blue-500/50 transition-all"
-        />
+        <div class="relative">
+          <input
+            type="text"
+            placeholder="Search for cities..."
+            class="search-input w-full p-4 bg-[#1e293b] border-2 border-transparent rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:shadow-blue-500/50 transition-all"
+          />
+          <button id="searchButton" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-2xl cursor-pointer">🔍</button>
+          <div id="suggestions" class="suggestions hidden"></div>
+        </div>
 
         <div class="bg-[#1e293b] p-8 rounded-2xl shadow-lg">
           <div class="flex justify-between items-start mb-10">
             <div>
               <h1 class="city-name text-4xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent mb-2">
-                Default
+                <b>Default</b>
               </h1>
               <p class="rain-chance text-gray-400">
-                Chance of rain: 0%
+                <b>TODAYS FORECAST </b>
               </p>
               <div class="temperature text-6xl font-bold mt-4"></div>
             </div>
@@ -268,13 +215,70 @@
     let weatherChart;
 
     const searchInput = document.querySelector('.search-input');
+    const searchButton = document.getElementById('searchButton');
+    const suggestionsContainer = document.getElementById('suggestions');
+
+    // Sample list of cities for suggestions (you can expand this)
+    const cities = [
+      'Kochi', 'Kottayam', 'Thiruvananthapuram', 'Kozhikode', 'Alappuzha',
+      'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata',
+      'London', 'New York', 'Tokyo', 'Sydney', 'Paris'
+    ];
+
+    function showSuggestions(input) {
+      suggestionsContainer.innerHTML = '';
+      suggestionsContainer.classList.add('hidden');
+      
+      if (!input) return;
+
+      const filteredCities = cities.filter(city => 
+        city.toLowerCase().includes(input.toLowerCase())
+      );
+
+      if (filteredCities.length > 0) {
+        filteredCities.forEach(city => {
+          const suggestionItem = document.createElement('div');
+          suggestionItem.className = 'suggestion-item';
+          suggestionItem.textContent = city;
+          suggestionItem.addEventListener('click', () => {
+            searchInput.value = city;
+            suggestionsContainer.classList.add('hidden');
+            getWeatherData(city);
+            getForecastData(city);
+          });
+          suggestionsContainer.appendChild(suggestionItem);
+        });
+        suggestionsContainer.classList.remove('hidden');
+      }
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      showSuggestions(e.target.value.trim());
+    });
+
     searchInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         const city = searchInput.value.trim();
         if (city) {
+          suggestionsContainer.classList.add('hidden');
           getWeatherData(city);
           getForecastData(city);
         }
+      }
+    });
+
+    searchButton.addEventListener('click', () => {
+      const city = searchInput.value.trim();
+      if (city) {
+        suggestionsContainer.classList.add('hidden');
+        getWeatherData(city);
+        getForecastData(city);
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+        suggestionsContainer.classList.add('hidden');
       }
     });
 
@@ -337,7 +341,6 @@
         })
         .catch(error => {
           console.error('Error fetching forecast data:', error);
-          alert('Failed to load forecast data. Please try again.');
         });
     }
 
@@ -424,7 +427,6 @@
         cityName.textContent = data.name || 'Unknown City';
         temperature.textContent = `${Math.round(data.main.temp)}°`;
         weatherIcon.textContent = getWeatherEmoji(data.weather[0]?.icon, data.main.temp);
-        rainChance.textContent = `Chance of rain: ${data.clouds?.all || 0}%`;
 
         console.log(`Current Temperature: ${Math.round(data.main.temp)}° at ${new Date((data.dt + timezoneOffset) * 1000).toLocaleString()} (city local time)`);
         console.log(`Your Device Time: ${new Date().toLocaleString()}`);
@@ -506,7 +508,6 @@
         return forecastTime.getHours() === currentHour;
       }) || forecastData.list[0];
 
-      rainChance.textContent = `Chance of rain: ${calculatedRainChance}%`;
       temperature.textContent = `${Math.round(closestForecast.main.temp)}°`;
       console.log(`Forecast Temp for ${currentHour}:00: ${Math.round(closestForecast.main.temp)}°`);
     }
