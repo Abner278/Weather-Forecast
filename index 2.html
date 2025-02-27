@@ -78,6 +78,111 @@
       background: rgba(59, 130, 246, 0.2);
     }
 
+    /* Light mode adjustments */
+    body.light-mode {
+      background: #ffffff !important;
+      color: #000000 !important;
+    }
+
+    body.light-mode *,
+    body.light-mode nav,
+    body.light-mode main,
+    body.light-mode aside,
+    body.light-mode .bg-[#1e293b],
+    body.light-mode .hourly-forecast,
+    body.light-mode .hourly-forecast > div,
+    body.light-mode .weekly-list,
+    body.light-mode .weekly-list > div,
+    body.light-mode .grid,
+    body.light-mode canvas,
+    body.light-mode .search-input,
+    body.light-mode .suggestions {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      border-color: #000000 !important;
+      color: #000000 !important;
+    }
+
+    /* Specific styling for air condition boxes in light mode */
+    body.light-mode .grid > div {
+      background: #f5f5f5 !important; /* Light gray background */
+      background-color: #f5f5f5 !important;
+    }
+
+    body.light-mode .grid > div:hover {
+      background: #f5f5f5 !important; /* No change on hover */
+      background-color: #f5f5f5 !important;
+    }
+
+    body.light-mode .search-input {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      border: 2px solid #000000 !important;
+      color: #000000 !important;
+    }
+
+    body.light-mode aside,
+    body.light-mode .weekly-list,
+    body.light-mode .weekly-list > div,
+    body.light-mode canvas#weatherChart {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      border-color: #000000 !important;
+      color: #000000 !important;
+    }
+
+    body.light-mode .suggestions {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      border: 1px solid #000000 !important;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    body.light-mode .suggestion-item {
+      color: #000000 !important;
+      background: #ffffff !important;
+    }
+
+    body.light-mode .suggestion-item:hover {
+      background: rgba(0, 0, 0, 0.1) !important;
+    }
+
+    body.light-mode .text-gray-400,
+    body.light-mode .text-blue-500,
+    body.light-mode .bg-gradient-to-r,
+    body.light-mode .text-2xl,
+    body.light-mode .text-xl,
+    body.light-mode .text-sm,
+    body.light-mode .text-4xl,
+    body.light-mode .text-6xl,
+    body.light-mode .text-7xl,
+    body.light-mode .placeholder-gray-400::placeholder {
+      color: #000000 !important;
+      background: none !important;
+      -webkit-text-fill-color: #000000 !important;
+    }
+
+    body.light-mode .arrow-button {
+      background: rgba(0, 0, 0, 0.1) !important;
+    }
+
+    body.light-mode .arrow-button:hover {
+      background: rgba(0, 0, 0, 0.2) !important;
+    }
+
+    body.light-mode .shadow-lg,
+    body.light-mode .hover\:shadow-blue-500\/50:hover,
+    body.light-mode .hover\:bg-blue-500\/10:hover {
+      box-shadow: none !important;
+      background: #ffffff !important;
+    }
+
+    /* Consistent hover effect in light mode for other elements */
+    body.light-mode .hourly-forecast > div:hover,
+    body.light-mode .weekly-list > div:hover {
+      background: rgba(0, 0, 0, 0.1) !important;
+    }
+
     /* Mobile Responsiveness */
     @media (max-width: 640px) {
       .min-h-screen { padding: 8px; }
@@ -148,9 +253,7 @@
         <div class="bg-[#1e293b] p-8 rounded-2xl shadow-lg">
           <div class="flex justify-between items-start mb-10">
             <div>
-              <h1 class="city-name text-4xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent mb-2">
-                <b>Default</b>
-              </h1>
+              <h1 class="city-name text-4xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent mb-2"></h1> <!-- Removed "Default" -->
               <p class="rain-chance text-gray-400">
                 <b>TODAYS FORECAST </b>
               </p>
@@ -213,16 +316,68 @@
     let currentTimeSlot = 0;
     const hoursToShow = 6;
     let weatherChart;
+    let isDark = true;
+    let currentCity = 'London';
+    let currentWeatherData = null;
+    let currentForecastData = null;
 
     const searchInput = document.querySelector('.search-input');
     const searchButton = document.getElementById('searchButton');
     const suggestionsContainer = document.getElementById('suggestions');
 
-    // Sample list of cities for suggestions (you can expand this)
     const cities = [
-      'Kochi', 'Kottayam', 'Thiruvananthapuram', 'Kozhikode', 'Alappuzha',
-      'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata',
-      'London', 'New York', 'Tokyo', 'Sydney', 'Paris'
+      // A
+      'Amsterdam', 'Athens', 'Auckland', 'Atlanta', 'Austin', 'Adelaide',
+      // B
+      'Bangalore', 'Beijing', 'Berlin', 'Boston', 'Brisbane', 'Budapest',
+      // C
+      'Cairo', 'Calgary', 'Cape Town', 'Chennai', 'Chicago', 'Copenhagen',
+      // D
+      'Dallas', 'Delhi', 'Denver', 'Dubai', 'Dublin', 'Dusseldorf',
+      // E
+      'Edinburgh', 'Edmonton', 'Eindhoven', 'El Paso', 'Essen', 'Exeter',
+      // F
+      'Florence', 'Frankfurt', 'Fukuoka', 'Fresno', 'Fort Worth', 'Funchal',
+      // G
+      'Geneva', 'Glasgow', 'Guangzhou', 'Gothenburg', 'Genoa', 'Guadalajara',
+      // H
+      'Hamburg', 'Hanoi', 'Helsinki', 'Hong Kong', 'Houston', 'Halifax',
+      // I
+      'Istanbul', 'Indianapolis', 'Islamabad', 'Incheon', 'Izmir', 'Ibadan',
+      // J
+      'Jakarta', 'Johannesburg', 'Jaipur', 'Jeddah', 'Jerusalem', 'Jinan',
+      // K
+      'Kochi', 'Kolkata', 'Kottayam', 'Kozhikode', 'Kiev', 'Karachi',
+      // L
+      'London', 'Lisbon', 'Los Angeles', 'Lagos', 'Lima', 'Lyon',
+      // M
+      'Madrid', 'Manchester', 'Melbourne', 'Mexico City', 'Miami', 'Mumbai',
+      // N
+      'New York', 'Nairobi', 'Naples', 'Nashville', 'Nanjing', 'Nice',
+      // O
+      'Osaka', 'Oslo', 'Ottawa', 'Orlando', 'Oxford', 'Odessa',
+      // P
+      'Paris', 'Perth', 'Phoenix', 'Philadelphia', 'Prague', 'Portland',
+      // Q
+      'Quebec City', 'Quito', 'Quanzhou', 'Qingdao', 'Quetta', 'Queretaro',
+      // R
+      'Rome', 'Rio de Janeiro', 'Riyadh', 'Rotterdam', 'Raleigh', 'Reykjavik',
+      // S
+      'Sydney', 'Singapore', 'Stockholm', 'San Francisco', 'Seoul', 'Shanghai',
+      // T
+      'Tokyo', 'Toronto', 'Tbilisi', 'Taipei', 'Tampa', 'Thiruvananthapuram',
+      // U
+      'Utrecht', 'Ulaanbaatar', 'Uppsala', 'Urumqi', 'Ufa', 'Ushuaia',
+      // V
+      'Vancouver', 'Vienna', 'Venice', 'Valencia', 'Vilnius', 'Victoria',
+      // W
+      'Washington', 'Wellington', 'Warsaw', 'Winnipeg', 'Wuhan', 'Windhoek',
+      // X
+      'Xiamen', 'Xian', 'Xalapa', 'Xining', 'Xuzhou', 'Xiangyang',
+      // Y
+      'Yokohama', 'Yangon', 'Yerevan', 'Yiwu', 'York', 'Yakutsk',
+      // Z
+      'Zurich', 'Zagreb', 'Zamboanga', 'Zaragoza', 'Zanzibar', 'Zhuhai'
     ];
 
     function showSuggestions(input) {
@@ -231,17 +386,22 @@
       
       if (!input) return;
 
+      // Filter cities that start with the input letter
       const filteredCities = cities.filter(city => 
-        city.toLowerCase().includes(input.toLowerCase())
+        city.toLowerCase().startsWith(input.toLowerCase())
       );
 
       if (filteredCities.length > 0) {
+        // Sort filtered cities alphabetically
+        filteredCities.sort((a, b) => a.localeCompare(b));
+        
         filteredCities.forEach(city => {
           const suggestionItem = document.createElement('div');
           suggestionItem.className = 'suggestion-item';
           suggestionItem.textContent = city;
           suggestionItem.addEventListener('click', () => {
             searchInput.value = city;
+            currentCity = city;
             suggestionsContainer.classList.add('hidden');
             getWeatherData(city);
             getForecastData(city);
@@ -260,6 +420,7 @@
       if (e.key === 'Enter') {
         const city = searchInput.value.trim();
         if (city) {
+          currentCity = city;
           suggestionsContainer.classList.add('hidden');
           getWeatherData(city);
           getForecastData(city);
@@ -270,6 +431,7 @@
     searchButton.addEventListener('click', () => {
       const city = searchInput.value.trim();
       if (city) {
+        currentCity = city;
         suggestionsContainer.classList.add('hidden');
         getWeatherData(city);
         getForecastData(city);
@@ -283,20 +445,27 @@
     });
 
     const themeToggle = document.getElementById('themeToggle');
-    const themeContainer = document.getElementById('themeContainer');
-    let isDark = true;
-
     themeToggle.addEventListener('click', () => {
-      if (isDark) {
-        themeContainer.classList.remove('bg-[#0f172a]');
-        themeContainer.classList.add('bg-[#f8fafc]');
-        themeToggle.textContent = '🌞';
-      } else {
-        themeContainer.classList.remove('bg-[#f8fafc]', 'text-[#0f172a]');
-        themeContainer.classList.add('bg-[#0f172a]', 'text-[#f8fafc]');
-        themeToggle.textContent = '🌙';
-      }
       isDark = !isDark;
+      if (isDark) {
+        document.body.classList.remove('light-mode');
+        document.body.classList.add('dark-mode');
+        themeToggle.textContent = '🌙';
+        console.log('Switched to dark mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+        document.body.classList.add('light-mode');
+        themeToggle.textContent = '🌞';
+        console.log('Switched to light mode');
+      }
+      if (currentWeatherData) updateWeatherUI(currentWeatherData);
+      if (currentForecastData) {
+        updateWeeklyForecast(currentForecastData);
+        updateWeatherChart(currentForecastData);
+        updateAirConditions(currentForecastData);
+        updateWeatherUIWithForecast(currentForecastData);
+      }
+      searchInput.value = currentCity;
     });
 
     const mapButton = document.getElementById('mapButton');
@@ -314,12 +483,13 @@
         .then(data => {
           if (data.cod === '404') throw new Error('City not found');
           if (data.cod !== 200) throw new Error(`API Error: ${data.message}`);
+          currentWeatherData = data;
           updateWeatherUI(data);
         })
         .catch(error => {
           console.error('Error fetching current weather:', error);
           alert('Could not find the city. Please check the spelling and try again.');
-          searchInput.value = '';
+          searchInput.value = currentCity;
         });
     }
 
@@ -333,7 +503,7 @@
         .then(data => {
           if (data.cod === '404') throw new Error('City not found');
           if (data.cod !== '200') throw new Error(`API Error: ${data.message}`);
-          console.log('Forecast Data:', data);
+          currentForecastData = data;
           updateWeeklyForecast(data);
           updateWeatherChart(data);
           updateAirConditions(data);
@@ -341,6 +511,7 @@
         })
         .catch(error => {
           console.error('Error fetching forecast data:', error);
+          searchInput.value = currentCity;
         });
     }
 
@@ -411,7 +582,6 @@
         }
       });
 
-      console.log('Calculated Chances:', { rainChance, snowChance });
       return { rainChance, snowChance };
     }
 
@@ -422,14 +592,13 @@
         const rainChance = document.querySelector('.rain-chance');
         const weatherIcon = document.querySelector('.weather-icon');
         const hourlyForecast = document.querySelector('.hourly-forecast');
-        const timezoneOffset = data.timezone;
+        const timezoneOffset = data.timezone || (currentWeatherData ? currentWeatherData.timezone : 0);
 
-        cityName.textContent = data.name || 'Unknown City';
-        temperature.textContent = `${Math.round(data.main.temp)}°`;
-        weatherIcon.textContent = getWeatherEmoji(data.weather[0]?.icon, data.main.temp);
-
-        console.log(`Current Temperature: ${Math.round(data.main.temp)}° at ${new Date((data.dt + timezoneOffset) * 1000).toLocaleString()} (city local time)`);
-        console.log(`Your Device Time: ${new Date().toLocaleString()}`);
+        if (data.name || currentWeatherData) {
+          cityName.textContent = (data.name || currentWeatherData.name) || 'Unknown City';
+          temperature.textContent = `${Math.round((data.main || currentWeatherData.main).temp)}°`;
+          weatherIcon.textContent = getWeatherEmoji((data.weather || currentWeatherData.weather)[0]?.icon, (data.main || currentWeatherData.main)?.temp);
+        }
 
         function getTemperatureForHour(hour, baseTemp) {
           const tempPatterns = {
@@ -443,18 +612,18 @@
         }
 
         function updateHourlyForecast() {
-          if (!hourlyForecast) return;
+          if (!hourlyForecast || !currentWeatherData) return;
           hourlyForecast.innerHTML = '';
           const cityTime = getCityLocalTime(timezoneOffset);
           const currentHour = cityTime.getHours();
-          const baseTemp = data.main.temp;
+          const baseTemp = currentWeatherData.main?.temp || 0;
 
           for (let i = 0; i < hoursToShow; i++) {
             let nextHour = (currentHour + currentTimeSlot + i) % 24;
             let period = nextHour >= 12 ? 'PM' : 'AM';
             let displayHour = nextHour % 12 || 12;
 
-            let timeBasedIcon = data.weather[0]?.icon || '01d';
+            let timeBasedIcon = currentWeatherData.weather?.[0]?.icon || '01d';
             if (nextHour >= 6 && nextHour < 18) {
               timeBasedIcon = timeBasedIcon.replace('n', 'd');
             } else {
@@ -463,7 +632,9 @@
 
             const temp = getTemperatureForHour(nextHour, baseTemp);
             const hourItem = document.createElement('div');
-            hourItem.className = 'bg-[#1e293b]/50 p-4 rounded-xl flex flex-col items-center hover:-translate-y-1 hover:bg-blue-500/10 transition-all';
+            hourItem.className = isDark 
+              ? 'bg-[#1e293b]/50 p-4 rounded-xl flex flex-col items-center hover:-translate-y-1 hover:bg-blue-500/10 transition-all'
+              : 'p-4 rounded-xl flex flex-col items-center transition-all border border-black';
             hourItem.innerHTML = `
               <span class="text-gray-400 text-sm mb-3">${displayHour}:00 ${period}</span>
               <span class="text-2xl">${getWeatherEmoji(timeBasedIcon, temp)}</span>
@@ -499,17 +670,18 @@
     function updateWeatherUIWithForecast(forecastData) {
       const rainChance = document.querySelector('.rain-chance');
       const temperature = document.querySelector('.temperature');
-      const { rainChance: calculatedRainChance } = calculatePrecipitationChances(forecastData.list);
+      const dataToUse = forecastData || currentForecastData;
+      if (!dataToUse) return;
 
-      const cityTime = getCityLocalTime(forecastData.city.timezone);
+      const { rainChance: calculatedRainChance } = calculatePrecipitationChances(dataToUse.list);
+      const cityTime = getCityLocalTime(dataToUse.city?.timezone || 0);
       const currentHour = cityTime.getHours();
-      const closestForecast = forecastData.list.find(forecast => {
-        const forecastTime = new Date((forecast.dt + forecastData.city.timezone) * 1000);
+      const closestForecast = dataToUse.list?.find(forecast => {
+        const forecastTime = new Date((forecast.dt + (dataToUse.city?.timezone || 0)) * 1000);
         return forecastTime.getHours() === currentHour;
-      }) || forecastData.list[0];
+      }) || dataToUse.list?.[0];
 
-      temperature.textContent = `${Math.round(closestForecast.main.temp)}°`;
-      console.log(`Forecast Temp for ${currentHour}:00: ${Math.round(closestForecast.main.temp)}°`);
+      if (closestForecast) temperature.textContent = `${Math.round(closestForecast.main.temp)}°`;
     }
 
     function updateAirConditions(data) {
@@ -517,9 +689,11 @@
         const windSpeed = document.querySelector('.wind-speed');
         const rainProbability = document.querySelector('.rain-probability');
         const snowProbability = document.querySelector('.snow-probability');
+        const dataToUse = data || currentForecastData;
+        if (!dataToUse) return;
 
-        const forecastData = data.list && data.list.length > 0 ? data.list[0] : null;
-        const { rainChance, snowChance } = calculatePrecipitationChances(data.list || []);
+        const forecastData = dataToUse.list && dataToUse.list.length > 0 ? dataToUse.list[0] : null;
+        const { rainChance, snowChance } = calculatePrecipitationChances(dataToUse.list || []);
 
         if (windSpeed && forecastData) windSpeed.textContent = `${Math.round(forecastData.wind?.speed || 0)} km/h`;
         if (rainProbability) rainProbability.textContent = `${rainChance}%`;
@@ -532,16 +706,16 @@
     function updateWeeklyForecast(data) {
       try {
         const weeklyList = document.querySelector('.weekly-list');
-        if (!weeklyList || !data.list || data.list.length === 0) {
-          console.warn('No forecast data for weekly list');
-          weeklyList.innerHTML = '<p class="text-gray-400">No forecast available</p>';
+        const dataToUse = data || currentForecastData;
+        if (!weeklyList || !dataToUse || !dataToUse.list || dataToUse.list.length === 0) {
+          if (weeklyList) weeklyList.innerHTML = '<p class="text-gray-400">No forecast available</p>';
           return;
         }
 
         weeklyList.innerHTML = '';
         const dailyData = {};
         
-        data.list.forEach(forecast => {
+        dataToUse.list.forEach(forecast => {
           const date = new Date(forecast.dt * 1000);
           const dayKey = date.toDateString();
           if (!dailyData[dayKey]) {
@@ -565,7 +739,9 @@
           const dayLabel = isToday(info.dt) ? 'Today' : getDayName(info.dt);
 
           const dayItem = document.createElement('div');
-          dayItem.className = 'bg-[#1e293b] p-6 rounded-xl flex justify-between items-center gap-4 hover:-translate-y-1 hover:bg-blue-500/10 transition-all';
+          dayItem.className = isDark 
+            ? 'bg-[#1e293b] p-6 rounded-xl flex justify-between items-center gap-4 hover:-translate-y-1 hover:bg-blue-500/10 transition-all'
+            : 'p-6 rounded-xl flex justify-between items-center gap-4 transition-all border border-black';
           dayItem.innerHTML = `
             <div class="text-xl font-bold">${dayLabel}</div>
             <div class="flex flex-col items-center">
@@ -578,23 +754,20 @@
         }
       } catch (error) {
         console.error('Error in updateWeeklyForecast:', error);
-        weeklyList.innerHTML = '<p class="text-gray-400">Error loading forecast</p>';
       }
     }
 
     function updateWeatherChart(data) {
       try {
         const ctx = document.getElementById('weatherChart').getContext('2d');
-        if (!data.list || data.list.length === 0) {
-          console.warn('No forecast data for chart');
-          return;
-        }
+        const dataToUse = data || currentForecastData;
+        if (!dataToUse || !dataToUse.list || dataToUse.list.length === 0) return;
 
         const labels = [];
         const temperatures = [];
         const dailyData = {};
 
-        data.list.forEach(forecast => {
+        dataToUse.list.forEach(forecast => {
           const date = new Date(forecast.dt * 1000);
           const dayKey = date.toDateString();
           if (!dailyData[dayKey]) dailyData[dayKey] = [];
@@ -605,7 +778,7 @@
         for (const [dayKey, temps] of Object.entries(dailyData)) {
           if (dayCount >= 7) break;
           const avgTemp = temps.reduce((a, b) => a + b, 0) / temps.length;
-          const dayLabel = dayCount === 0 && isToday(data.list[0].dt) ? 'Today' : getDayName(data.list[dayCount * 8]?.dt || Date.now() / 1000);
+          const dayLabel = dayCount === 0 && isToday(dataToUse.list[0].dt) ? 'Today' : getDayName(dataToUse.list[dayCount * 8]?.dt || Date.now() / 1000);
           labels.push(dayLabel);
           temperatures.push(Math.round(avgTemp));
           dayCount++;
@@ -620,39 +793,63 @@
             datasets: [{
               label: 'Temperature (°C)',
               data: temperatures,
-              borderColor: '#3b82f6',
-              backgroundColor: 'rgba(59, 130, 246, 0.2)',
+              borderColor: isDark ? '#3b82f6' : '#000000',
+              backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : 'rgba(0, 0, 0, 0.2)',
               fill: true,
               tension: 0.4,
-              pointBackgroundColor: '#3b82f6',
+              pointBackgroundColor: isDark ? '#3b82f6' : '#000000',
               pointBorderColor: '#fff',
               pointHoverBackgroundColor: '#fff',
-              pointHoverBorderColor: '#3b82f6'
+              pointHoverBorderColor: isDark ? '#3b82f6' : '#000000'
             }]
           },
           options: {
             responsive: true,
+            maintainAspectRatio: true,
             scales: {
               x: {
-                title: { display: true, text: 'Days', color: '#f8fafc' },
-                ticks: { color: '#f8fafc' },
-                grid: { color: 'rgba(248, 250, 252, 0.1)' }
+                title: { display: true, text: 'Days', color: isDark ? '#f8fafc' : '#000000' },
+                ticks: { color: isDark ? '#f8fafc' : '#000000' },
+                grid: { color: isDark ? 'rgba(248, 250, 252, 0.1)' : 'rgba(0, 0, 0, 0.1)' }
               },
               y: {
-                title: { display: true, text: 'Temperature (°C)', color: '#f8fafc' },
-                ticks: { color: '#f8fafc' },
-                grid: { color: 'rgba(248, 250, 252, 0.1)' }
+                title: { display: true, text: 'Temperature (°C)', color: isDark ? '#f8fafc' : '#000000' },
+                ticks: { color: isDark ? '#f8fafc' : '#000000' },
+                grid: { color: isDark ? 'rgba(248, 250, 252, 0.1)' : 'rgba(0, 0, 0, 0.1)' }
               }
             },
             plugins: {
-              legend: { labels: { color: '#f8fafc' } }
+              legend: { labels: { color: isDark ? '#f8fafc' : '#000000' } }
             }
           }
         });
+        ctx.canvas.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
       } catch (error) {
         console.error('Error in updateWeatherChart:', error);
       }
     }
+
+    function updateWeatherChartColors() {
+      if (weatherChart) {
+        weatherChart.data.datasets[0].borderColor = isDark ? '#3b82f6' : '#000000';
+        weatherChart.data.datasets[0].backgroundColor = isDark ? 'rgba(59, 130, 246, 0.2)' : 'rgba(0, 0, 0, 0.2)';
+        weatherChart.data.datasets[0].pointBackgroundColor = isDark ? '#3b82f6' : '#000000';
+        weatherChart.data.datasets[0].pointHoverBorderColor = isDark ? '#3b82f6' : '#000000';
+        weatherChart.options.scales.x.title.color = isDark ? '#f8fafc' : '#000000';
+        weatherChart.options.scales.x.ticks.color = isDark ? '#f8fafc' : '#000000';
+        weatherChart.options.scales.x.grid.color = isDark ? 'rgba(248, 250, 252, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        weatherChart.options.scales.y.title.color = isDark ? '#f8fafc' : '#000000';
+        weatherChart.options.scales.y.ticks.color = isDark ? '#f8fafc' : '#000000';
+        weatherChart.options.scales.y.grid.color = isDark ? 'rgba(248, 250, 252, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        weatherChart.options.plugins.legend.labels.color = isDark ? '#f8fafc' : '#000000';
+        weatherChart.chart.canvas.style.backgroundColor = isDark ? '#1e293b' : '#ffffff';
+        weatherChart.update();
+      }
+    }
+
+    // Initialize with default city
+    getWeatherData(currentCity);
+    getForecastData(currentCity);
   </script>
 </body>
 </html>
